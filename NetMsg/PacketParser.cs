@@ -6,33 +6,43 @@ namespace LockStepFrameWork.NetMsg
 {
     public class Packet
     {
-        public byte[] Bytes;
-        public ushort Opcode
-        {
-            get
-            {
-                return BitConverter.ToUInt16(Bytes, 0);
-            }
-            set{}
-        }
+        public MsgType opcode;
+        public BaseMsg msg;
 
-        public Packet(ushort opcode)
+        public Packet(MsgType opcode, BaseMsg msg)
         {
-            Opcode = opcode;
+            this.opcode = opcode;
+            this.msg = msg;
         }
     }
 
     class PacketParser
     {
-        public static Packet Parse(byte[] buf)
+
+        public static Packet DeserializeFrom(byte[] buf)
         {
-            Packet packet = new Packet((ushort)MsgType.ERROR);
-            ushort opcode = buf[0];
-            packet.Opcode = opcode;
-            byte[] data = new byte[buf.Length -1];
+            if(buf.Length < 2)
+            {
+                return null;
+            }
+            MsgType opcode = (MsgType)buf[0];
+            byte[] data = new byte[buf.Length - 1];
             Array.Copy(buf, 1, data, 0, buf.Length - 1);
-            packet.Bytes = data;
-            return packet;
+
+            BaseMsg msg = null;
+            switch (opcode)
+            {
+                case MsgType.S2C_Ping: msg = BaseFormater.FromByte<Msg_S2C_Ping>(data); break;
+                case MsgType.C2S_Ping: msg = BaseFormater.FromByte<Msg_C2S_Ping>(data); break;
+                default: break;
+            }
+
+            return new Packet(opcode, msg);
+        }
+
+        public static byte[] SerializeToByteArray(BaseMsg msg)
+        {
+            return msg.ToBytes();
         }
     }
 }

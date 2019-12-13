@@ -25,6 +25,14 @@ namespace LockStepFrameWork.NetMsg
             
         }
 
+        public byte[] ToBytes()
+        {
+            var writer = new Serializer();
+            Serialize(writer);
+            var bytes = writer.CopyData();
+            return bytes;
+        }
+
         public void FromBytes(byte[] data)
         {
             var reader = new Deserializer(data);
@@ -44,7 +52,7 @@ namespace LockStepFrameWork.NetMsg
         
     }
 
-    public class PingMsg : BaseMsg
+    public class Msg_C2S_Ping : BaseMsg
     {
         public int Tick;
 
@@ -57,5 +65,10 @@ namespace LockStepFrameWork.NetMsg
         {
             writer.Write(Tick);
         }
+    }
+
+    public class Msg_S2C_Ping : BaseMsg
+    {
+
     }
 }
