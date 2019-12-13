@@ -40,9 +40,13 @@ namespace LockStepFrameWork.NetMsg
             return new Packet(opcode, msg);
         }
 
-        public static byte[] SerializeToByteArray(BaseMsg msg)
+        public static byte[] SerializeToByteArray(Packet packet)
         {
-            return msg.ToBytes();
+            byte[] buf = packet.msg.ToBytes();
+            byte[] ret = new byte[buf.Length + 1];
+            ret[0] = (byte)packet.opcode;
+            Array.Copy(buf, 0, ret, 1, buf.Length);
+            return ret;
         }
     }
 }
